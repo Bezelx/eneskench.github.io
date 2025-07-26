@@ -30,44 +30,6 @@ export function useMedia() {
   }
 
   const uploadFiles = async (files: File[]) => {
-    try {
-      // Step 1: Ask backend for presigned URLs
-      const formData = new FormData()
-      files.forEach((file) => formData.append("files", file))
-
-      const res = await fetch("/api/upload", {
-        method: "POST",
-        body: formData,
-      })
-
-      const { files: presigned } = await res.json()
-
-      // Step 2: Upload directly to R2
-      await Promise.all(
-        presigned.map(async (file, index) => {
-          await fetch(file.uploadUrl, {
-            method: "PUT",
-            headers: { "Content-Type": file.type },
-            body: files[index],
-          })
-          file.originalFile = files[index] // Attach original file if needed
-        })
-      )
-
-      // Step 3: Save metadata to DB
-      await fetch("/api/media", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ files: presigned }),
-      })
-
-      await fetchMedia()
-      return presigned
-    } catch (error) {
-      console.error("Upload failed:", error)
-      throw error
-    }
-    
     const formData = new FormData()
     files.forEach((file) => formData.append("files", file))
 
